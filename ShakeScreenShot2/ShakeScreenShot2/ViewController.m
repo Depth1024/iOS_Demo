@@ -28,6 +28,13 @@
 -(void)viewDidAppear:(BOOL)animated
 {
     [self startAccelerometer];
+    //viewDidAppear中加入
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(receiveNotification:)
+                                                 name:UIApplicationDidEnterBackgroundNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(receiveNotification:)
+                                                 name:UIApplicationWillEnterForegroundNotification object:nil];
 }
 -(void)startAccelerometer
 {
@@ -52,7 +59,7 @@
         
         dispatch_async(dispatch_get_main_queue(), ^{
             //UI线程必须在此block内执行，例如摇一摇动画、UIAlertView之类
-            
+            NSLog(@"shake");
         });
     }
 }
@@ -61,4 +68,16 @@
     //停止加速仪更新（很重要！）
     [self.motionManager stopAccelerometerUpdates];
 }
+
+-(void)receiveNotification:(NSNotification *)notification
+{
+    if ([notification.name
+         isEqualToString:UIApplicationDidEnterBackgroundNotification])
+    {
+        [self.motionManager stopAccelerometerUpdates];
+    }else{
+        [self startAccelerometer];
+    }
+}
+
 @end
